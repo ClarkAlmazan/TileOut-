@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.awt.Point;
+
 public class State{
 	private static final int GRID_SIZE = 3;
 	private int score;
@@ -20,6 +23,10 @@ public class State{
 
 	public void set_Config(int x, int y, String player){
 		this.config[x][y] = player;
+	}
+
+	public String[][] getConfigState(){
+		return this.config;
 	}
 
 	public int get_Value(){
@@ -116,5 +123,31 @@ public class State{
 		else return -1; //Value returned if game is a draw			
 	}
 
+	public void printBoard(){
+		for(int i=0; i<3; i++){
+			for(int j=0; j<3; j++){
+				if (!config[i][j].isEmpty()) System.out.print(config[i][j]+ " ");
+				else System.out.print("- ");
+			}
+			System.out.println("");
+		}
+
+		System.out.println("");
+	}
+
+	public ArrayList<Point> getToggledPoints(){
+		ArrayList<Point> toggled = new ArrayList<Point>();
+		for(int i=0; i<3; i++){
+			for(int j=0; j<3; j++){
+				if(!config[i][j].isEmpty()){
+					Point yay = new Point(i, j);
+					toggled.add(yay);
+				}
+			}
+		}
+		return toggled;
+	}
+
+	
 	
 } 
