@@ -9,6 +9,8 @@ import java.io.FileReader;
 import java.awt.Dimension;
 import java.awt.Container;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 
 public class TicTacToe{
@@ -41,7 +43,7 @@ public class TicTacToe{
 		this.tileSettings = new String[GRID_SIZE][GRID_SIZE];
 
 		this.player1 = 1;
-		this.player2 = 2;
+		this.player2 = 2;	//CPU by default
 		this.currentPlayer = 1;
 		
 
@@ -100,8 +102,6 @@ public class TicTacToe{
 		if(this.currentPlayer == player1)	tileSettings[xCoor][yCoor] = "X";	
 		else tileSettings[xCoor][yCoor] = "O";
 		
-
-
 		
 		//prints the coordinates of the clicked light as well as the game state
 		printGameState();
@@ -112,18 +112,27 @@ public class TicTacToe{
 		System.out.println("Horizontal:"+checkGameEndHor());
 		System.out.println("Vertical:"+checkGameEndVer());
 		System.out.println("Diagonal:"+checkGameEndDia());
+		System.out.println("currentPlayer:"+this.currentPlayer);
 		if (checkGameEndHor() || checkGameEndVer() || checkGameEndDia()){
 			JOptionPane endgame = new JOptionPane();
+			System.out.println(value_of_Board());
 			endgame.showMessageDialog(null, "Yay", "Yay",JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
 		}
 
 		if (noBlanks() && (checkGameEndHor() || checkGameEndDia() || checkGameEndVer())==false){
 			JOptionPane endgame = new JOptionPane();
+			System.out.println(value_of_Board());
 			endgame.showMessageDialog(null, "Draw", "Aww",JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
 		}
+
 
 		swapPlayers();
 
+		if(this.currentPlayer == 0){	//after swapping
+			cpu_turn();
+		}
 	}
 
 	//function for checking if the game has reached the end state
@@ -220,5 +229,133 @@ public class TicTacToe{
 		if (this.currentPlayer == 1) this.currentPlayer = 0;
 		else this.currentPlayer = 1;
 	}
+
+
+	private boolean gameWin(){
+		if (checkGameEndHor() || checkGameEndVer() || checkGameEndDia()){
+			return true;
+		}
+		else return false;
+	}
+
+	private boolean terminal_check(){
+		if (gameWin()==true){
+			return true;
+		}
+
+		for(int i=0; i<GRID_SIZE; i++){
+			for(int j=0; j<GRID_SIZE; j++){
+				if(!tileSettings[i][j].isEmpty()) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	private void cpu_turn(){
+
+		State gameState = new State(tileSettings,player2);
+
+		int value = -999;
+		int x = -999; 
+		int y = -999;
+
+		for(int i=0; i<GRID_SIZE;i++){
+			for(int j=0; j<GRID_SIZE; j++){
+				if((gameState.get_Config(i,j)).isEmpty() ){
+					gameState.set_Config(i,j,"O"); //Adds player move to check
+						
+					int m = minMaxAlgorithm(gameState, 1);
+
+					gameState.set_Config(i,j,""); //reset config for possible next itereations
+
+					if(m > value){	//if max value is found, the coordinates are saved for toggling
+						value = m;
+						x = i;
+						y = j;
+
+					}
+				}	
+			}
+		}
+		
+		toggleTiles(player2,tileArray[x][y]);
+
+	}
+
+	private int value_of_Board(){
+		if (gameWin() && (this.currentPlayer == 0) ){		//Maximize Computer
+			return 10;	
+		}
+		else if (gameWin() && (this.currentPlayer == 1) ){
+			return -10;	
+		}
+		else return -1; //Value returned if game is a draw			
+	}
+
+	private int minMaxAlgorithm(State board_state, int playerTurn){
+		//if board in terminal state
+		if(terminal_check() == true){
+			return board_state.get_Value();
+		}
+
+		//if max node
+		if(playerTurn == 0){
+			int m = -999;
+
+			for(int i=0; i<GRID_SIZE; i++){
+				for(int j=0; j<GRID_SIZE; j++){
+					if( (board_state.get_Config(i,j)).isEmpty()){	//All emtpy spots are possible moves
+						
+						board_state.set_Config(i,j,"O"); //Adds player move to check
+						
+						m = maxValue( m, minMaxAlgorithm(board_state, 1));
+
+						board_state.set_Config(i,j,""); //reset config for possible next itereations
+					}
+					System.out.println(m);//REMOVE
+				}
+			}
+			return m;
+		}	
+
+		//if min node
+		if(playerTurn == 1){
+			int m = 999;
+
+			for(int i=0; i<GRID_SIZE; i++){
+				for(int j=0; j<GRID_SIZE; j++){
+					if( (board_state.get_Config(i,j)).isEmpty()){	//All emtpy spots are possible moves
+						
+						board_state.set_Config(i,j,"X"); //Adds player move to check
+						
+						m = maxValue( m, minMaxAlgorithm(board_state, 0));
+
+						board_state.set_Config(i,j,"");
+					}
+				}
+			}
+			return m;
+		}
+
+		return 0;	
+	}
+
+	private int maxValue(int value1, int value2){
+		if(value1 > value2){
+			return value1;
+		}
+
+		else return value2;
+	}
+
+	private int minValue(int value1, int value2){
+		if(value1 < value2){
+			return value1;
+		}
+
+		else return value2;
+	}	
 
 }
