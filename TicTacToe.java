@@ -11,6 +11,7 @@ import java.awt.Container;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.awt.Point;
 
 
 public class TicTacToe{
@@ -43,7 +44,7 @@ public class TicTacToe{
 		this.tileSettings = new String[GRID_SIZE][GRID_SIZE];
 
 		this.player1 = 1;
-		this.player2 = 2;	//CPU by default
+		this.player2 = 0;	//CPU by default
 		this.currentPlayer = 1;
 		
 
@@ -261,26 +262,28 @@ public class TicTacToe{
 		int x = -999; 
 		int y = -999;
 
-		for(int i=0; i<GRID_SIZE;i++){
-			for(int j=0; j<GRID_SIZE; j++){
-				if((gameState.get_Config(i,j)).isEmpty() ){
-					gameState.set_Config(i,j,"O"); //Adds player move to check
+		// for(int i=0; i<GRID_SIZE;i++){
+		// 	for(int j=0; j<GRID_SIZE; j++){
+		// 		if((gameState.get_Config(i,j)).isEmpty() ){
+		// 			gameState.set_Config(i,j,"O"); //Adds player move to check
 						
-					int m = minMaxAlgorithm(gameState, 1);
+		// 			int m = minMaxAlgorithm(gameState, 1);
 
-					gameState.set_Config(i,j,""); //reset config for possible next itereations
+		// 			gameState.set_Config(i,j,""); //reset config for possible next itereations
 
-					if(m > value){	//if max value is found, the coordinates are saved for toggling
-						value = m;
-						x = i;
-						y = j;
+		// 			if(m > value){	//if max value is found, the coordinates are saved for toggling
+		// 				value = m;
+		// 				x = i;
+		// 				y = j;
 
-					}
-				}	
-			}
-		}
+		// 			}
+		// 		}	
+		// 	}
+		// }
+		int m = minMaxAlgorithm(gameState, 1);
 		
 		toggleTiles(player2,tileArray[x][y]);
+		swapPlayers();
 
 	}
 
@@ -300,43 +303,16 @@ public class TicTacToe{
 			return board_state.get_Value();
 		}
 
+		int v;
+
 		//if max node
 		if(playerTurn == 0){
-			int m = -999;
-
-			for(int i=0; i<GRID_SIZE; i++){
-				for(int j=0; j<GRID_SIZE; j++){
-					if( (board_state.get_Config(i,j)).isEmpty()){	//All emtpy spots are possible moves
-						
-						board_state.set_Config(i,j,"O"); //Adds player move to check
-						
-						m = maxValue( m, minMaxAlgorithm(board_state, 1));
-
-						board_state.set_Config(i,j,""); //reset config for possible next itereations
-					}
-					System.out.println(m);//REMOVE
-				}
-			}
-			return m;
+			return max_value(board_state);
 		}	
 
 		//if min node
-		if(playerTurn == 1){
-			int m = 999;
-
-			for(int i=0; i<GRID_SIZE; i++){
-				for(int j=0; j<GRID_SIZE; j++){
-					if( (board_state.get_Config(i,j)).isEmpty()){	//All emtpy spots are possible moves
-						
-						board_state.set_Config(i,j,"X"); //Adds player move to check
-						
-						m = maxValue( m, minMaxAlgorithm(board_state, 0));
-
-						board_state.set_Config(i,j,"");
-					}
-				}
-			}
-			return m;
+		else if(playerTurn == 1){
+			return min_value(board_state);
 		}
 
 		return 0;	
@@ -358,4 +334,70 @@ public class TicTacToe{
 		else return value2;
 	}	
 
+
+
+	public ArrayList<Point> Actions(State board_state){
+		ArrayList<Point> availableActions = new ArrayList<Point>();
+		Point nextToggle = new Point(0,0);
+		ArrayList<Point> toggledPoints = board_state.getToggledPoints();
+		for (int y=0; y<GRID_SIZE; y++){
+			for(int x=0; x<GRID_SIZE; x++){
+				nextToggle = new Point(x,y);
+
+				//if the current Point hasn't been toggled once, add to list of Actions
+				if (tileSettings[x][y].isEmpty()){
+					//System.out.println("Toggle light at "+ x + ", " + y);
+					availableActions.add(nextToggle);
+				}
+				
+			}
+		}
+		return availableActions;
+
+	}
+
+	public State Result(State in, Point a, int player){
+		State result = new State(in.getConfigState(), player);
+		if (player==0)	
+			result.set_Config(a.x, a.y, "O");
+		else
+			result.set_Config(a.x, a.y, "X");
+		return result;
+	}
+
+	public ArrayList<State> successors(State in, int player){
+		ArrayList<State> nextStates = new ArrayList<State>();
+
+		for (Point a:Actions(in)){
+				nextStates.add(Result(in, a, player));
+
+		}
+
+		return nextStates;
+	}
+
+	public int max_value(State s){
+		int m = -999;
+		ArrayList<State> successors = successors(s, s.get_currentPlayer());
+		for(State a: successors){
+			int v = minMaxAlgorithm(a, a.get_currentPlayer());
+			m = maxValue(m, v);
+		}
+
+		return m;
+
+	}
+
+	public int min_value(State s){
+		int m = 999;
+		ArrayList<State> successors = successors(s, s.get_currentPlayer());
+		for(State a: successors){
+			int v = minMaxAlgorithm(a, a.get_currentPlayer());
+			m = minValue(m, v);
+		}
+
+		return m;
+
+	}
 }
+//Here be dragons
