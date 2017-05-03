@@ -6,6 +6,7 @@ public class State{
 	private int score;
 	private int currentPlayer;
 	private String[][] config = new String[3][3];
+	private Point action;
 
 	public State(String[][] array, int player){
 
@@ -14,30 +15,45 @@ public class State{
 				this.config[i][j] = array[i][j];
 			}
 		}
-		set_currentPlayer(player);
+		setCurrentPlayer(player);
 	}
 
-	public String get_Config(int x, int y){
+	public State(String[][] array, int player, Point action){
+
+		for (int i=0; i<GRID_SIZE;i++){
+			for (int j=0; j<GRID_SIZE; j++){
+				this.config[i][j] = array[i][j];
+			}
+		}
+		setCurrentPlayer(player);
+		this.action = action;
+	}	
+
+	public String getConfig(int x, int y){
 		return this.config[x][y];
 	}
 
-	public void set_Config(int x, int y, String player){
-		this.config[x][y] = player;
+	public void setConfig(int x, int y, String value){
+		this.config[x][y] = value;
 	}
 
 	public String[][] getConfigState(){
 		return this.config;
 	}
 
-	public int get_Value(){
-		return value_of_Board();
+	public void setAction(Point a){
+		this.action = a;
 	}
 
-	public void set_currentPlayer(int i){
+	public Point getAction(){
+		return this.action;
+	}
+
+	public void setCurrentPlayer(int i){
 		this.currentPlayer = i;
 	}	
 
-	public int get_currentPlayer(){
+	public int getCurrentPlayer(){
 		return this.currentPlayer;
 	}
 
@@ -111,16 +127,37 @@ public class State{
 		else return false;
 	}
 
-	private int value_of_Board(){
+	//function for checking if board is already full
+	public boolean terminalCheck(){
+		if (gameWin() || noBlanks()){
+			System.out.println("util");
+			return true;
+		}
+
+		return false;
+	}
+
+	//check if board is full
+	private boolean noBlanks(){
+		for(int i = 0 ; i<GRID_SIZE; i++){
+			for (int j=0; j<GRID_SIZE; j++){
+				if(config[i][j].isEmpty()) return false;
+			}
+		}
+		return true;
+	}	
+
+
+	public int valueOfBoard(){
 		if (gameWin() && (this.currentPlayer == 1) ){
 			this.score = 10;
 			return 10;	
 		}
-		else if (gameWin() && (this.currentPlayer == 2) ){
+		else if (gameWin() && (this.currentPlayer == 0) ){
 			this.score = -10;
 			return -10;	
 		}
-		else return -1; //Value returned if game is a draw			
+		else return 0; //Value returned if game is a draw			
 	}
 
 	public void printBoard(){
@@ -137,10 +174,12 @@ public class State{
 
 	public ArrayList<Point> getToggledPoints(){
 		ArrayList<Point> toggled = new ArrayList<Point>();
+		Point yay = new Point(0, 0);
 		for(int i=0; i<3; i++){
 			for(int j=0; j<3; j++){
 				if(!config[i][j].isEmpty()){
-					Point yay = new Point(i, j);
+					yay = new Point(i, j);
+					System.out.println("Action("+i+", "+j+")");
 					toggled.add(yay);
 				}
 			}

@@ -22,6 +22,17 @@ public class Tile extends JButton{
 			this.setFont(new Font("Arial", Font.BOLD, 30));
 		}
 
+		public Tile(int x, int y, String text){
+			super(); //calls main constructor of a JButton
+			
+			this.setText(text);
+
+			this.x_axis = x;
+			this.y_axis = y;
+			this.setFont(new Font("Arial", Font.BOLD, 30));
+			this.setEnabled(false);
+		}
+
 		public String getTile(){
 			return this.getText();
 		}
