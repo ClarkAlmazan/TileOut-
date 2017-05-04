@@ -77,8 +77,8 @@ public class TicTacToe{
 		// printGameState();
 		
 		//start with cpu turn
-		this.currentPlayer = cpu;
-		cpuTurn();
+		// this.currentPlayer = cpu;
+		// cpuTurn();
 
 	}
 
@@ -364,13 +364,13 @@ public class TicTacToe{
 
 	//function that gets the resulting state of an action being executed
 	public State Result(State in, Point a, int player){
-		State result = new State(in.getConfigState(), player);
+		State result = new State(in.getConfigState(), player, a);
 		if (player==cpu)	
 			result.setConfig(a.x, a.y, "O");
 		else
 			result.setConfig(a.x, a.y, "X");
 
-		result.setAction(a);
+		
 		// result.printBoard();
 		// System.out.println("result set");
 		return result;
@@ -402,7 +402,7 @@ public class TicTacToe{
 		
 
 		//if max node
-		else if(board_state.getCurrentPlayer() == cpu)
+		else if(board_state.getCurrentPlayer() == human)
 			return max_value(board_state);
 		
 
