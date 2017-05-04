@@ -324,7 +324,7 @@ public class TicTacToe{
 		for(State s: successorStates){
 			// System.out.println(s.getCurrentPlayer());
 			// s.printBoard();
-			v = value(s);
+			v = value(s,-999,999);
 
 			// if(count==0){
 			// 	gameState = s;
@@ -427,7 +427,7 @@ public class TicTacToe{
 		return nextStates;
 	}
 
-	private int value(State board_state){
+	private int value(State board_state, int alpha, int beta ){
 
 		//if board in terminal state
 		if(board_state.terminalCheck())
@@ -436,35 +436,43 @@ public class TicTacToe{
 
 		//if max node
 		else if(board_state.getCurrentPlayer() == human)
-			return max_value(board_state);
+			return max_value(board_state,alpha,beta);
 		
 
 		//if min node
 		// else if(board_state.getCurrentPlayer() == human)
-			return min_value(board_state);
+			return min_value(board_state,alpha,beta);
 
 
 	}
 
-	public int max_value(State s){
+	public int max_value(State s, int alpha, int beta){
 		int m = -999;
 		
 		ArrayList<State> successorStates = successors(s);
 		for(State a: successorStates){	
-			int v = value(a);
+			int v = value(a, alpha, beta);
 			m = maxValue(m, v);
+			alpha = maxValue(alpha, v);
+			if(beta <= alpha){
+				break;
+			}
 		}
 
 		return m;
 
 	}
 
-	public int min_value(State s){
+	public int min_value(State s , int alpha, int beta){
 		int m = 999;
 		ArrayList<State> successorStates = successors(s);
 		for(State a: successorStates){
-			int v = value(a);
+			int v = value(a, alpha, beta);
 			m = minValue(m, v);
+			beta = minValue(beta, v);
+			if(beta <= alpha){
+				break;
+			}
 		}
 
 		return m;
