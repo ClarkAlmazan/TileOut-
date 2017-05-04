@@ -22,7 +22,7 @@ public class TicTacToe{
 	private JFrame gameWindow;
 	private Container gameContainer;
 	private JPanel gameGrid;
-	
+	private JOptionPane playerturn;
 	
 	//essential for tracking game state
 	private Tile[][] tileArray;
@@ -77,8 +77,31 @@ public class TicTacToe{
 		// printGameState();
 		
 		//start with cpu turn
-		// this.currentPlayer = cpu;
-		// cpuTurn();
+		Object[] order = {"Player first","CPU first"};
+
+		int choice = playerturn.showOptionDialog(null,"Pick the order of Players","", JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE,null,order,order[0]);
+
+		if(choice == 0){
+
+			JOptionPane playerstart = new JOptionPane();
+			playerstart.showMessageDialog(null, "Player will move first.", "PLAYER START",JOptionPane.PLAIN_MESSAGE);
+
+			
+		}	
+		else if(choice == 1){
+
+			JOptionPane playerstart = new JOptionPane();
+			playerstart.showMessageDialog(null, "CPU will move first.", "CPU START",JOptionPane.PLAIN_MESSAGE);
+			this.currentPlayer = cpu;
+			cpuTurn();
+		}
+		else{
+			JOptionPane playerstart = new JOptionPane();
+			playerstart.showMessageDialog(null, "Player did not choose.\n"+"CPU will go first.", "",JOptionPane.PLAIN_MESSAGE);
+			this.currentPlayer = cpu;
+			cpuTurn();		
+		}
+
 
 	}
 
@@ -125,7 +148,12 @@ public class TicTacToe{
 		if (checkGameEndHor() || checkGameEndVer() || checkGameEndDia()){
 			JOptionPane endgame = new JOptionPane();
 			// System.out.println(utility());
-			endgame.showMessageDialog(null, "Yay", "Yay",JOptionPane.ERROR_MESSAGE);
+			if(this.currentPlayer == 1){
+				endgame.showMessageDialog(null, "Congratulations, you Win!", "GAME OVER",JOptionPane.ERROR_MESSAGE);
+			}
+			else{
+				endgame.showMessageDialog(null, "You Lose. CPU wins!", "GAME OVER",JOptionPane.ERROR_MESSAGE);
+			}
 			System.exit(0);
 		}
 
@@ -155,7 +183,12 @@ public class TicTacToe{
 		if (checkGameEndHor() || checkGameEndVer() || checkGameEndDia()){
 			JOptionPane endgame = new JOptionPane();
 			System.out.println(utility());
-			endgame.showMessageDialog(null, "Yay", "Yay",JOptionPane.ERROR_MESSAGE);
+			if(this.currentPlayer == 1){
+				endgame.showMessageDialog(null, "You Win!", "GAME OVER",JOptionPane.ERROR_MESSAGE);
+			}
+			else{
+				endgame.showMessageDialog(null, "You Lose. CPU wins!", "GAME OVER",JOptionPane.ERROR_MESSAGE);
+			}
 			System.exit(0);
 		}
 
