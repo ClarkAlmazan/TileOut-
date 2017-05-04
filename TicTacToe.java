@@ -26,7 +26,8 @@ public class TicTacToe{
 	
 	//essential for tracking game state
 	private Tile[][] tileArray;
-	private String[][] tileSettings = {{"X","O","O"},{"O","X","X"},{"","",""}};
+	// private String[][] tileSettings = {{"X","O","O"},{"X","O","X"},{"","",""}};
+	private String[][] tileSettings;
 	private State currentState;
 
 	//player variables
@@ -40,7 +41,7 @@ public class TicTacToe{
 		this.gameWindow = new JFrame("Tile Out!");
 		this.gameContainer = gameWindow.getContentPane();
 		this.gameContainer = gameGrid;
-		// this.tileSettings = new String[GRID_SIZE][GRID_SIZE];
+		this.tileSettings = new String[GRID_SIZE][GRID_SIZE];
 
 		this.currentPlayer = human;
 
@@ -74,6 +75,11 @@ public class TicTacToe{
 		
 		//print initial game state
 		// printGameState();
+		
+		//start with cpu turn
+		this.currentPlayer = cpu;
+		cpuTurn();
+
 	}
 
 	//function that initializes Tile array
@@ -82,9 +88,11 @@ public class TicTacToe{
 		this.tileArray = new Tile[GRID_SIZE][GRID_SIZE];
 		for (int i=0; i<GRID_SIZE;i++){
 			for (int j=0; j<GRID_SIZE; j++){
-				// this.tileSettings[i][j] = "";
-				if (!tileSettings[i][j].equals("")) this.tileArray[i][j] = new Tile(i, j, tileSettings[i][j]);
-				else this.tileArray[i][j] = new Tile(i, j);
+				this.tileSettings[i][j] = "";
+				// if (!tileSettings[i][j].equals("")) 
+				// 	this.tileArray[i][j] = new Tile(i, j, tileSettings[i][j]);
+				// else 
+					this.tileArray[i][j] = new Tile(i, j);
 			}
 		}
 
@@ -100,18 +108,12 @@ public class TicTacToe{
 		
 		//toggle clicked tile and adjust current state table
 		tileArray[xCoor][yCoor].toggleTile(currentPlayer);
-		if(this.currentPlayer == human)	{
-			tileSettings[xCoor][yCoor] = "X";
-			currentState.setConfig(xCoor, yCoor, "X");	
-		}	
-		// else {
-		// 	tileSettings[xCoor][yCoor] = "O";
-		// 	currentState.setConfig(xCoor, yCoor, "O");	
-		// }
+		tileSettings[xCoor][yCoor] = "X";
+		currentState.setConfig(xCoor, yCoor, "X");	
 		
 		
 		//prints the coordinates of the clicked tile as well as the game state
-		printGameState();
+		// printGameState();
 		
 		
 
@@ -122,14 +124,14 @@ public class TicTacToe{
 		
 		if (checkGameEndHor() || checkGameEndVer() || checkGameEndDia()){
 			JOptionPane endgame = new JOptionPane();
-			System.out.println(valueOfBoard());
+			// System.out.println(utility());
 			endgame.showMessageDialog(null, "Yay", "Yay",JOptionPane.ERROR_MESSAGE);
 			System.exit(0);
 		}
 
 		if (noBlanks() && (checkGameEndHor() || checkGameEndDia() || checkGameEndVer())==false){
 			JOptionPane endgame = new JOptionPane();
-			System.out.println(valueOfBoard());
+			// System.out.println(utility());
 			endgame.showMessageDialog(null, "Draw", "Aww",JOptionPane.ERROR_MESSAGE);
 			System.exit(0);
 		}
@@ -152,14 +154,14 @@ public class TicTacToe{
 
 		if (checkGameEndHor() || checkGameEndVer() || checkGameEndDia()){
 			JOptionPane endgame = new JOptionPane();
-			System.out.println(valueOfBoard());
+			System.out.println(utility());
 			endgame.showMessageDialog(null, "Yay", "Yay",JOptionPane.ERROR_MESSAGE);
 			System.exit(0);
 		}
 
 		if (noBlanks() && (checkGameEndHor() || checkGameEndDia() || checkGameEndVer())==false){
 			JOptionPane endgame = new JOptionPane();
-			System.out.println(valueOfBoard());
+			System.out.println(utility());
 			endgame.showMessageDialog(null, "Draw", "Aww",JOptionPane.ERROR_MESSAGE);
 			System.exit(0);
 		}
@@ -280,24 +282,28 @@ public class TicTacToe{
 
 	//function for executing cpu turn
 	private void cpuTurn(){
-		State gameState = new State(tileSettings,cpu);
+		State gameState = new State(tileSettings,human);
+		ArrayList<State> successorStates = successors(gameState);
 		int count = 0;
-		int currentValue =0;
-		int m = 0;
-		for(State s: successors(gameState)){
+		int v = 0;
+		int m = -999;
+		
+		for(State s: successorStates){
+			// System.out.println(s.getCurrentPlayer());
+			// s.printBoard();
+			v = value(s);
 
-			m = value(s);
-
-			if(count==0){
+			// if(count==0){
+			// 	gameState = s;
+			// 	currentValue = m;
+			// }
+			if (v>m){
 				gameState = s;
-				currentValue = m;
-			}
-			else if (m>currentValue){
-				gameState = s;
-				currentValue = m;
+				m = v;
 			}
 
-			count++;
+			// count++;
+
 		}
 		
 		toggleTileCPU(gameState.getAction());
@@ -307,22 +313,11 @@ public class TicTacToe{
 
 	}
 
-
-	private void copyConfig(String[][] config){
-		for (int i = 0; i<GRID_SIZE; i++){
-			for (int j = 0; j<GRID_SIZE; j++){
-				tileSettings[i][j] = config[i][j];
-				if (!tileSettings[i][j].equals("")) this.tileArray[i][j] = new Tile(i, j, tileSettings[i][j]);
-				else this.tileArray[i][j] = new Tile(i, j);
-			}
-		}
-
-	}
-	private int valueOfBoard(){
-		if (gameWin() && (this.currentPlayer == 0) ){		//Maximize Computer
+	private int utility(){
+		if (gameWin() && (this.currentPlayer == cpu) ){		//Maximize Computer
 			return 10;	
 		}
-		else if (gameWin() && (this.currentPlayer == 1) ){
+		else if (gameWin() && (this.currentPlayer == human) ){
 			return -10;	
 		}
 		else return 0; //Value returned if game is a draw			
@@ -350,11 +345,12 @@ public class TicTacToe{
 	//function that gets the available actions for a player
 	public ArrayList<Point> Actions(State board_state){
 		ArrayList<Point> availableActions = new ArrayList<Point>();
+		String[][] config = board_state.getConfigState();
 		Point nextToggle = new Point(0,0);
 		for (int y=0; y<GRID_SIZE; y++){
 			for(int x=0; x<GRID_SIZE; x++){			
 				//if tile is blank, it is an available action
-				if (tileSettings[x][y].isEmpty()){
+				if (config[x][y].isEmpty()){
 					nextToggle = new Point(x,y);
 					// System.out.println("Action("+x+", "+y+")");
 					availableActions.add(nextToggle);
@@ -375,7 +371,7 @@ public class TicTacToe{
 			result.setConfig(a.x, a.y, "X");
 
 		result.setAction(a);
-		result.printBoard();
+		// result.printBoard();
 		// System.out.println("result set");
 		return result;
 	}
@@ -383,11 +379,14 @@ public class TicTacToe{
 	//function for getting the successor states
 	public ArrayList<State> successors(State in){
 		ArrayList<State> nextStates = new ArrayList<State>();
-		int player;
+		int player = human;
+		ArrayList<Point> availableActions = Actions(in);
+		//player of successor state should be human if preceding player was cpu, vice versa
 		if(in.getCurrentPlayer() == human) player = cpu;
-		else player = human;
+		else if(in.getCurrentPlayer() == cpu) player = human;
 
-		for (Point a:Actions(in)){
+		// System.out.println(availableActions.size());
+		for (Point a: availableActions){
 				nextStates.add(Result(in, a, player));
 
 		}
@@ -398,29 +397,27 @@ public class TicTacToe{
 	private int value(State board_state){
 
 		//if board in terminal state
-		if(board_state.terminalCheck() == true)
-			return board_state.valueOfBoard();
+		if(board_state.terminalCheck())
+			return board_state.utility();
 		
 
 		//if max node
-		if(board_state.getCurrentPlayer() == cpu)
+		else if(board_state.getCurrentPlayer() == cpu)
 			return max_value(board_state);
 		
 
 		//if min node
-		if(board_state.getCurrentPlayer() == human)
+		// else if(board_state.getCurrentPlayer() == human)
 			return min_value(board_state);
 
-		return 0;
 
 	}
 
 	public int max_value(State s){
 		int m = -999;
+		
 		ArrayList<State> successorStates = successors(s);
-		for(State a: successorStates){
-		// for(int i=0; i<3; i++){
-			// State a = successorStates.get(i);	
+		for(State a: successorStates){	
 			int v = value(a);
 			m = maxValue(m, v);
 		}
@@ -433,8 +430,6 @@ public class TicTacToe{
 		int m = 999;
 		ArrayList<State> successorStates = successors(s);
 		for(State a: successorStates){
-		// for(int i=0; i<3; i++){
-			// State a = successorStates.get(i);	
 			int v = value(a);
 			m = minValue(m, v);
 		}

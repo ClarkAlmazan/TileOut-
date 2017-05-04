@@ -15,7 +15,8 @@ public class State{
 				this.config[i][j] = array[i][j];
 			}
 		}
-		setCurrentPlayer(player);
+		this.currentPlayer = player;
+		// System.out.println("Player "+ this.currentPlayer);
 	}
 
 	public State(String[][] array, int player, Point action){
@@ -129,11 +130,7 @@ public class State{
 
 	//function for checking if board is already full
 	public boolean terminalCheck(){
-		if (gameWin() || noBlanks()){
-			System.out.println("util");
-			return true;
-		}
-
+		if (gameWin() || noBlanks())	return true;
 		return false;
 	}
 
@@ -141,20 +138,22 @@ public class State{
 	private boolean noBlanks(){
 		for(int i = 0 ; i<GRID_SIZE; i++){
 			for (int j=0; j<GRID_SIZE; j++){
-				if(config[i][j].isEmpty()) return false;
+				if(config[i][j].length()==0) {
+					// System.out.println("not yet full");
+					return false;	
+				}
 			}
 		}
 		return true;
 	}	
 
 
-	public int valueOfBoard(){
-		if (gameWin() && (this.currentPlayer == 1) ){
-			this.score = 10;
+	public int utility(){
+		if (gameWin() && (this.currentPlayer == 0) ){
 			return 10;	
 		}
-		else if (gameWin() && (this.currentPlayer == 0) ){
-			this.score = -10;
+		else if (gameWin() && (this.currentPlayer == 1) ){
+			// this.score = -10;
 			return -10;	
 		}
 		else return 0; //Value returned if game is a draw			
@@ -163,30 +162,15 @@ public class State{
 	public void printBoard(){
 		for(int i=0; i<3; i++){
 			for(int j=0; j<3; j++){
-				if (!config[i][j].isEmpty()) System.out.print(config[i][j]+ " ");
-				else System.out.print("- ");
+				if (!config[i][j].isEmpty()) 
+					System.out.print(config[i][j]+ " ");
+				else if(config[i][j].length()==0)
+					System.out.print("- ");
 			}
 			System.out.println("");
 		}
 
 		System.out.println("");
 	}
-
-	public ArrayList<Point> getToggledPoints(){
-		ArrayList<Point> toggled = new ArrayList<Point>();
-		Point yay = new Point(0, 0);
-		for(int i=0; i<3; i++){
-			for(int j=0; j<3; j++){
-				if(!config[i][j].isEmpty()){
-					yay = new Point(i, j);
-					System.out.println("Action("+i+", "+j+")");
-					toggled.add(yay);
-				}
-			}
-		}
-		return toggled;
-	}
-
-	
 	
 } 
