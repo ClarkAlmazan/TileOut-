@@ -50,9 +50,12 @@ public class Tile extends JButton{
 		public void toggleTile(int player){
 			if (player == 1){
 				this.setText("x");
+
+				this.setBackground(Color.CYAN);
 			}
 			else{
 				this.setText("O");
+				this.setBackground(Color.YELLOW);
 			}
 			this.setEnabled(false);
 		}

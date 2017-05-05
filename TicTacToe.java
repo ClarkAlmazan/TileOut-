@@ -30,6 +30,8 @@ public class TicTacToe{
 	private String[][] tileSettings;
 	private State currentState;
 
+	private  int count = 0;
+
 	//player variables
 	private int human = 1; //X
 	private int cpu = 0; //O
@@ -315,6 +317,8 @@ public class TicTacToe{
 
 	//function for executing cpu turn
 	private void cpuTurn(){
+		this.count = 0;	//REMOVE
+
 		State gameState = new State(tileSettings,human);
 		ArrayList<State> successorStates = successors(gameState);
 		int count = 0;
@@ -340,6 +344,8 @@ public class TicTacToe{
 		}
 		
 		toggleTileCPU(gameState.getAction());
+
+		System.out.println("Number of states: " + this.count);//REMOVE
 
 		swapPlayers();
 		System.out.println("cpu turn done");
@@ -448,12 +454,16 @@ public class TicTacToe{
 
 	public int max_value(State s){
 		int m = -999;
+
 		
 		ArrayList<State> successorStates = successors(s);
 		for(State a: successorStates){	
 			int v = value(a);
 			m = maxValue(m, v);
+
+			this.count++; //REMOVE
 		}
+
 
 		return m;
 
@@ -461,10 +471,14 @@ public class TicTacToe{
 
 	public int min_value(State s){
 		int m = 999;
+
+
 		ArrayList<State> successorStates = successors(s);
 		for(State a: successorStates){
 			int v = value(a);
 			m = minValue(m, v);
+
+			this.count++; //REMOVE
 		}
 
 		return m;
