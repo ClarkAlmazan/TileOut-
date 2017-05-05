@@ -30,6 +30,8 @@ public class TicTacToe{
 	private String[][] tileSettings;
 	private State currentState;
 
+	private int count = 0; //REMOVE
+
 	//player variables
 	private int human = 1; //X
 	private int cpu = 0; //O
@@ -37,7 +39,7 @@ public class TicTacToe{
 	//Game constructor
 	public TicTacToe(){
 
-		this.gameGrid = new JPanel(new GridLayout(GRID_SIZE,GRID_SIZE));
+		this.gameGrid = new JPanel(new GridLayout(GRID_SIZE,GRID_SIZE,2,2));
 		this.gameWindow = new JFrame("Tile Out!");
 		this.gameContainer = gameWindow.getContentPane();
 		this.gameContainer = gameGrid;
@@ -315,6 +317,7 @@ public class TicTacToe{
 
 	//function for executing cpu turn
 	private void cpuTurn(){
+		this.count = 0; //REMOVE
 		State gameState = new State(tileSettings,human);
 		ArrayList<State> successorStates = successors(gameState);
 		int count = 0;
@@ -340,6 +343,8 @@ public class TicTacToe{
 		}
 		
 		toggleTileCPU(gameState.getAction());
+
+		System.out.println("Number of states: " + this.count);//REMOVE
 
 		swapPlayers();
 		System.out.println("cpu turn done");
@@ -457,6 +462,7 @@ public class TicTacToe{
 			if(beta <= alpha){
 				break;
 			}
+			this.count++; //REMOVE
 		}
 
 		return m;
@@ -465,6 +471,7 @@ public class TicTacToe{
 
 	public int min_value(State s , int alpha, int beta){
 		int m = 999;
+
 		ArrayList<State> successorStates = successors(s);
 		for(State a: successorStates){
 			int v = value(a, alpha, beta);
@@ -473,6 +480,7 @@ public class TicTacToe{
 			if(beta <= alpha){
 				break;
 			}
+			this.count++; //REMVOE
 		}
 
 		return m;
